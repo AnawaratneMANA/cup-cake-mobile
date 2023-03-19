@@ -1,22 +1,63 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {View, Text, StyleSheet} from "react-native";
 import {Button, FormControl, Input} from "native-base";
+import {auth, createUserWithEmailAndPassword, signInWithEmailAndPassword} from "../firebase";
 
 export type Props = {};
 
 const LoginScreen: React.FC<Props> = () => {
 
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+
+    // Handling SingUp method.
+    const handleSignup = () => {
+        createUserWithEmailAndPassword(auth, username, password).then((userCredential) => {
+            const user = userCredential.user;
+            console.log("Registration Success! " + user.getIdToken());
+        }).catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.log(errorMessage);
+        })
+    }
+
+    // Handle LogIn method
+    const handleLogIn = () => {
+        signInWithEmailAndPassword(auth, username, password).then((userCredentials) => {
+            const user = userCredentials.user;
+            console.log("Login Success! " + user.getIdToken());
+        }).catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.log(errorMessage);
+        })
+
+    }
+
     return (<View style={styles.container}>
         <FormControl mb="5">
             <FormControl.Label>Username</FormControl.Label>
-            <Input />
+            <Input
+                value = {username}
+                onChangeText={text => setUsername(text)}
+            />
         </FormControl>
 
         <FormControl mb="5">
             <FormControl.Label>Password</FormControl.Label>
-            <Input />
+            <Input
+                value = {password}
+                onChangeText={text => setPassword(text)}
+                secureTextEntry={true}
+            />
         </FormControl>
-        <Button style={{width: 100}}>Log In</Button>
+        <Button
+            onPress={() => handleLogIn()}
+            style={{width: 100, marginBottom: 4}}>Login</Button>
+        <Button
+            onPress={() => handleSignup()}
+            style={{width: 100, backgroundColor: 'red'}}>Register</Button>
     </View>)
     ;
 };
