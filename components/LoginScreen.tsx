@@ -1,11 +1,23 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet} from "react-native";
+import React, {useEffect, useState} from 'react';
+import {StyleSheet, View} from "react-native";
 import {Button, FormControl, Input} from "native-base";
 import {auth, createUserWithEmailAndPassword, signInWithEmailAndPassword} from "../firebase";
+import {ParamListBase, useNavigation} from '@react-navigation/native'
+import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 
 export type Props = {};
 
 const LoginScreen: React.FC<Props> = () => {
+
+    const { navigate } = useNavigation<NativeStackNavigationProp<ParamListBase>>();
+
+    useEffect(() => {
+        return auth.onAuthStateChanged(user => {
+            if (user) {
+                navigate("Home")
+            }
+        })
+    }, [])
 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -27,6 +39,7 @@ const LoginScreen: React.FC<Props> = () => {
         signInWithEmailAndPassword(auth, username, password).then((userCredentials) => {
             const user = userCredentials.user;
             console.log("Login Success! " + user.getIdToken());
+            navigate("Home")
         }).catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
